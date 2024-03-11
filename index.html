@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+</head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.2/socket.io.js" integrity="sha512-VJ6+sp2E5rFQk05caiXXzQd1wBABpjEj1r5kMiLmGAAgwPItw1YpqsCCBtq8Yr1x6C49/mTpRdXtq8O2RcZhlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<body>
+  <div id="app">
+    <input id="username" type="text" placeholder="Enter your username" />
+    <button id="join">Join</button>
+    <div id="chat">
+      <ul id="messages"></ul>
+      <form id="form" action="">
+        <input id="input" type="text" placeholder="Type your message" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const usernameInput = document.getElementById('username');
+    const joinButton = document.getElementById('join');
+    const chat = document.getElementById('chat');
+    const messages = document.getElementById('messages');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+
+    joinButton.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      if (username) {
+        socket.emit('join', username);
+      }
+    });
+
+    socket.on('user joined', (user) => {
+      const li = document.createElement('li');
+      li.textContent = `${user.username} joined`;
+      messages.appendChild(li);
+    });
+
+    socket.on('chat message', (msg) => {
+      const li = document.createElement('li');
+      li.textContent = msg;
+      messages.appendChild(li);
+    });
+
+    socket.on('user left', (user) => {
+      const li = document.createElement('li');
+      li.textContent = `${user.username} left`;
+      messages.appendChild(li);
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      socket.emit('chat message', input.value);
+      input.value = '';
+    });
+  </script>
+</body>
+
+</html>
